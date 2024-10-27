@@ -28,14 +28,14 @@ This project generates various reports based on a list of positions formed on di
     python main.py
     ```
 
-3. The generated report will be available in the `base_report_df` DataFrame.
+3. The generated report will output to the `BaseReport.xlsx` file.
 
 ## Project Structure
 
 - `main.py`: Entry point for generating reports.
 - `reports/base_report.py`: Contains the logic for generating the `BaseReport`.
 - `reports/base_report_utils.py`: Utility functions used in the `BaseReport`.
-- `positions.xlsx`: Input file containing the positions data.
+- `positions.xlsx`: Input file containing the positions' data.
 
 ## Future Work
 
