@@ -41,11 +41,3 @@ This project generates various reports based on a list of positions formed on di
 
 - Implement additional reports to provide more insights into financial assets.
 - Enhance the scoring mechanism to include more metrics and customizable weights.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License.
