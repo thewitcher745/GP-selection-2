@@ -57,4 +57,10 @@ for pair_name in pair_list:
 base_report_df = pd.DataFrame.from_dict(base_report_list)
 
 # Add the score column to the base_report dataframe
-base_report_df = calculate_score(base_report_df, weights)
+base_report_df["Score"] = calculate_score(base_report_df, weights)["Score"]
+
+# Sort the columns by Score
+base_report_df.sort_values(["Score"])
+
+# Round the values to 2 decimal places
+base_report_df = base_report_df.round(4)
