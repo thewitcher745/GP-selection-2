@@ -60,7 +60,7 @@ base_report_df = pd.DataFrame.from_dict(base_report_list)
 base_report_df["Score"] = calculate_score(base_report_df, weights)["Score"]
 
 # Sort the columns by Score
-base_report_df.sort_values(["Score"])
+base_report_df.sort_values(["Score"], ascending=False, inplace=True)
 
 # Round the values to 2 decimal places
 base_report_df = base_report_df.round(4)
