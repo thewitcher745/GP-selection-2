@@ -6,7 +6,7 @@ weights = {
     "Winrate - total": 0.2,
     "Net profit - total": 0.25,
     "Gross profit - total": 0.1,
-    "Gross loss - total": -0.1,  # Negative weight to minimize
+    "Gross loss - total": 0.1,  # Values are negative, so a positive weight would minimize its absolute
     "Largest profit in a trade - total": 0.05,
     "Average profit per trade - total": 0.05,
     "Max drawdown - total": -0.1,  # Negative weight to minimize
