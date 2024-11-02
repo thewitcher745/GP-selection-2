@@ -4,7 +4,7 @@ import pandas as pd
 weights = {
     "Performance - total": 0.3,
     "Winrate - total": 0.2,
-    "Net profit - total": 0.25,
+    "Net profit - total": 0.4,
     "Gross profit - total": 0.1,
     "Gross loss - total": 0.1,  # Values are negative, so a positive weight would minimize its absolute
     "Largest profit in a trade - total": 0.05,
