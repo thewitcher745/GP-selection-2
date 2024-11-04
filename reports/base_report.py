@@ -2,7 +2,7 @@ import pandas as pd
 
 from reports.base_report_utils import *
 
-positions_df: pd.DataFrame = pd.read_excel("./positions.xlsx")
+positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 pair_list: list = positions_df["Pair name"].unique().tolist()
 
@@ -11,7 +11,11 @@ base_report_list: list = []
 
 for pair_name in pair_list:
     # The positions that have pair_name as their first column, and have been actually entered
-    positions_from_pair: pd.DataFrame = positions_df[(positions_df["Pair name"] == pair_name) & (positions_df["Status"] != "ACTIVE")]
+    positions_from_pair: pd.DataFrame = positions_df[
+        (positions_df["Pair name"] == pair_name) & (positions_df["Status"] != "ACTIVE") & (positions_df["Status"] != "ENTERED")]
+
+    # Number of trades
+    total_number_of_positions = len(positions_from_pair)
 
     # The summation of the net profit for the list of trades
     total_net_profit: float = calc_sum_net_profit(positions_from_pair)
@@ -38,6 +42,7 @@ for pair_name in pair_list:
 
     base_report_dict_item: dict = {
         "Pair name": pair_name,
+        "Number of positions - total": total_number_of_positions,
         "Performance - total": total_performance,
         "Winrate - total": total_winrate,
         "Net profit - total": total_net_profit,
