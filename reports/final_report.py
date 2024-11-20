@@ -2,10 +2,10 @@ import pandas as pd
 
 from reports.base_report_utils import *
 
-positions_df: pd.DataFrame = pd.read_excel("../all_positions.xlsx")
+positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 
-base_report_df = pd.read_excel("../BaseReport.xlsx")
+base_report_df = pd.read_excel("./BaseReport.xlsx")
 total_pair_list = base_report_df["Pair name"].tolist()
 
 # The list containing rows of the final report, which show data on scenarios for choosing the first n pairs of base report as our selected pairs.
