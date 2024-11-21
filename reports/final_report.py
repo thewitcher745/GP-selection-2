@@ -43,6 +43,7 @@ for pair_count in range(1, len(total_pair_list)):
 
     base_report_dict_item: dict = {
         "Pair count": pair_count,
+        "Capital used per trade": positions_for_current_pairs.iloc[0]["Capital used"],
         "Number of positions - total": total_number_of_positions,
         "Performance - total": total_performance,
         "Winrate - total": total_winrate,
@@ -64,9 +65,10 @@ final_report_df = pd.DataFrame.from_dict(final_report_list)
 
 # This scaling factor will scale all rows to make them more comparable. For example, if a row has 400 trades, the capital engaged in each trade will
 # 1/4 of the top row with 100 trades. This scaling factor will ensure the total capital engaged in each scenario/row is the same. The columns that
-# are affected by this scaling factor are the ones that depend on the capital engaged in each trade, namely net profit, gross profit, gross loss,
+# are affected by this scaling factor are the ones that depend on the capital engaged in each trade, namely capital used per trade, net profit, gross profit, gross loss,
 # drawdowns and the largest and average profits per trade.
 scaling_factor = final_report_df.iloc[0]["Number of positions - total"] / final_report_df["Number of positions - total"]
+final_report_df["Capital used per trade"] = final_report_df["Capital used per trade"] * scaling_factor
 final_report_df["Net profit - total"] = final_report_df["Net profit - total"] * scaling_factor
 final_report_df["Gross profit - total"] = final_report_df["Gross profit - total"] * scaling_factor
 final_report_df["Gross loss - total"] = final_report_df["Gross loss - total"] * scaling_factor
