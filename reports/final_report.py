@@ -13,7 +13,8 @@ final_report_list = []
 
 for pair_count in range(1, len(total_pair_list)):
     current_pair_list = total_pair_list[:pair_count]
-    positions_for_current_pairs = positions_df[positions_df["Pair name"].isin(current_pair_list)]
+    positions_for_current_pairs = positions_df[
+        (positions_df["Pair name"].isin(current_pair_list)) & (positions_df["Status"] != "ACTIVE") & (positions_df["Status"] != "ENTERED")]
 
     # Number of trades
     total_number_of_positions = len(positions_for_current_pairs)
@@ -75,5 +76,3 @@ final_report_df["Gross loss - total"] = final_report_df["Gross loss - total"] * 
 final_report_df["Max drawdown - total"] = final_report_df["Max drawdown - total"] * scaling_factor
 final_report_df["Largest profit in a trade - total"] = final_report_df["Largest profit in a trade - total"] * scaling_factor
 final_report_df["Average profit per trade - total"] = final_report_df["Average profit per trade - total"] * scaling_factor
-
-
