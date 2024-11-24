@@ -2,11 +2,13 @@ import pandas as pd
 
 from reports.base_report_utils import *
 
+excluded_pairs = ["REEFUSDT"]
+
 positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 
 base_report_df = pd.read_excel("./BaseReport.xlsx")
-total_pair_list = base_report_df["Pair name"].tolist()[:30]
+total_pair_list = [pair for pair in base_report_df["Pair name"].tolist() if pair not in excluded_pairs][:31]
 
 # The list containing rows of the final report, which show data on scenarios for choosing the first n pairs of base report as our selected pairs.
 final_report_list = []
