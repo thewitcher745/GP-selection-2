@@ -16,6 +16,9 @@ for pair_name in pair_list:
 
     # Number of trades
     total_number_of_positions = len(positions_from_pair)
+    # If the file has no positions, skip to the next pair
+    if total_number_of_positions == 0:
+        continue
 
     # The summation of the net profit for the list of trades
     total_net_profit: float = calc_sum_net_profit(positions_from_pair)
