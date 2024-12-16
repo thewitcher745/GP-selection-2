@@ -2,9 +2,16 @@ import pandas as pd
 
 from reports.base_report_utils import *
 
+mode = "LIMITED_PAIRS"
+
 positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
-pair_list: list = positions_df["Pair name"].unique().tolist()
+
+pair_list = []
+if mode == "LIMITED_PAIRS":
+    pair_list = pd.read_csv("pair_list.csv").pairs.tolist()
+elif mode == "ALL_PAIRS":
+    pair_list = positions_df["Pair name"].unique().tolist()
 
 # The list which contains items that have data related to each pair. Each item is a dict and the list finally converts into a python dataframe.
 base_report_list: list = []
