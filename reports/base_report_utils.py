@@ -162,10 +162,10 @@ def calculate_score(df: pd.DataFrame, weights: dict) -> pd.DataFrame:
 
 
 def calc_total_months(positions):
-    min_date = positions["Entry time"].min()
-    max_date = positions["Exit time"].max()
-    total_month_list = pd.date_range(start=min_date, end=max_date, freq='MS')
+    min_date = positions["Entry time"].min().replace(day=1)
+    max_date = (positions["Exit time"].max() + pd.DateOffset(months=1)).replace(day=1)
 
+    total_month_list = pd.date_range(start=min_date, end=max_date, freq="MS")
     return total_month_list
 
 
