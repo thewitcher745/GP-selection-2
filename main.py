@@ -1,23 +1,29 @@
 import pandas as pd
+import os
 
 import reports.base_report as base_report
 
+# Create the report_outputs folder if it doesn't exist
+if not os.path.exists('report_outputs'):
+    print("Report output folder created.")
+    os.makedirs('report_outputs')
+
 base_report_df: pd.DataFrame = base_report.base_report_df
-base_report_df.to_excel("BaseReport.xlsx")
+base_report_df.to_excel("report_outputs/BaseReport.xlsx")
 
 print("BaseReport.xlsx created.")
 
 import reports.final_report as final_report
 
 final_report_df: pd.DataFrame = final_report.final_report_df
-final_report_df.to_excel("FinalReport.xlsx")
+final_report_df.to_excel("report_outputs/FinalReport.xlsx")
 
 print("FinalReport.xlsx created.")
 
 import reports.monthly_report as monthly_report
 
 monthly_report_df: pd.DataFrame = monthly_report.monthly_report_df
-monthly_report_df.to_excel("MonthlyReport.xlsx")
+monthly_report_df.to_excel("report_outputs/MonthlyReport.xlsx")
 
 print("MonthlyReport.xlsx created.")
 
@@ -25,7 +31,7 @@ print("MonthlyReport.xlsx created.")
 combined_report_df = pd.concat([final_report_df, monthly_report_df], axis=1)
 
 # Save the combined dataframe to a new Excel file
-combined_report_df.to_excel("CombinedReport.xlsx", index=False)
+combined_report_df.to_excel("report_outputs/CombinedReport.xlsx", index=False)
 
 print("CombinedReport.xlsx created.")
 
