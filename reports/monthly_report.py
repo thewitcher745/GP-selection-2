@@ -45,7 +45,7 @@ for pair_count in range(1, len(total_pair_list) + 1):
     current_month = earliest_yearmonth
     while current_month <= latest_yearmonth:
         positions_for_current_month = positions_for_current_pairs[
-            (positions_for_current_pairs["Entry time"].dt.strftime("%Y-%m") == current_month)]
+            (positions_for_current_pairs["Exit time"].dt.strftime("%Y-%m") == current_month)]
         total_net_profit: float = calc_sum_net_profit(positions_for_current_month)
 
         monthly_profit_dict[current_month] = total_net_profit * scaling_factor
