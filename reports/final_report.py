@@ -8,12 +8,39 @@ positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 
 base_report_df = pd.read_excel("./BaseReport.xlsx")
-total_pair_list = [pair for pair in base_report_df["Pair name"].tolist() if pair not in excluded_pairs][:31]
+
+all_pairs = [pair for pair in base_report_df["Pair name"].tolist() if pair not in excluded_pairs]
+if len(all_pairs) > 30:
+    total_pair_list = all_pairs[:31]
+else:
+    total_pair_list = all_pairs
 
 # The list containing rows of the final report, which show data on scenarios for choosing the first n pairs of base report as our selected pairs.
 final_report_list = []
 
-for pair_count in range(1, len(total_pair_list)):
+
+def calculate_average_concurrent_positions(df):
+    min_time = min(df["Entry time"].min(), df["Exit time"].min())
+    max_time = max(df["Entry time"].max(), df["Exit time"].max())
+    all_times = pd.date_range(start=min_time, end=max_time, freq='5min')
+
+    concurrent_positions = []
+
+    for time in all_times:
+        # Count positions that are active at the current time
+        active_positions = df[(df["Entry time"] <= time) & (df["Exit time"] > time)]
+        concurrent_positions.append(len(active_positions))
+
+    # Calculate the average number of concurrent positions
+    average_concurrent_positions = sum(concurrent_positions) / len(concurrent_positions)
+    return average_concurrent_positions
+
+
+def calculate_average_loss_per_position(df):
+    return df[df["Net profit"] < 0]["Net profit"].mean()
+
+
+for pair_count in range(1, len(total_pair_list) + 1):
     current_pair_list = total_pair_list[:pair_count]
     positions_for_current_pairs = positions_df[
         (positions_df["Pair name"].isin(current_pair_list)) & (positions_df["Status"] != "ACTIVE") & (positions_df["Status"] != "ENTERED")]
@@ -23,7 +50,6 @@ for pair_count in range(1, len(total_pair_list)):
     # If the file has no positions, skip to the next pair
     if total_number_of_positions == 0:
         continue
-
 
     # The summation of the net profit for the list of trades
     total_net_profit: float = calc_sum_net_profit(positions_for_current_pairs)
@@ -44,6 +70,12 @@ for pair_count in range(1, len(total_pair_list)):
     # Drawdown represents the maximum drawdown of the equity curve formed by the positions
     total_drawdown: float = calc_max_drawdown(positions_for_current_pairs)
 
+    # Average concurrent open positions
+    average_concurrent_positions = calculate_average_concurrent_positions(positions_for_current_pairs)
+
+    # Average loss per position
+    average_loss_per_position = calculate_average_loss_per_position(positions_for_current_pairs)
+
     # Consecutive wins and losses
     avg_consecutive_wins, max_consecutive_wins = calc_consecutive_wins(positions_for_current_pairs)
     avg_consecutive_losses, max_consecutive_losses = calc_consecutive_losses(positions_for_current_pairs)
@@ -60,6 +92,8 @@ for pair_count in range(1, len(total_pair_list)):
         "Largest profit in a trade - total": total_largest_profit_per_position,
         "Average profit per trade - total": total_average_profit_per_position,
         "Max drawdown - total": total_drawdown,
+        "Average loss per position - total": average_loss_per_position,
+        "Average # of concurrent trades": average_concurrent_positions,
         "Average consecutive wins": avg_consecutive_wins,
         "Max consecutive wins": max_consecutive_wins,
         "Average consecutive losses": avg_consecutive_losses,
