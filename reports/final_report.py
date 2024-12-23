@@ -19,6 +19,7 @@ final_report_list = []
 
 total_month_list = calc_total_months(positions_df)
 
+
 def calculate_average_concurrent_positions(df):
     min_time = min(df["Entry time"].min(), df["Exit time"].min())
     max_time = max(df["Entry time"].max(), df["Exit time"].max())
@@ -112,10 +113,24 @@ final_report_df = pd.DataFrame.from_dict(final_report_list)
 
 # This scaling factor works by forcing a set amount of engaged capital for every signal of the LAST row of the final report. Then, a scaling factor
 # is calculated for all the other rows and all the affected numbers are multiplied by that.
-scaling_factor = constants.capital_per_trade / final_report_df["Capital used per trade"] * final_report_df.iloc[-1]["Number of positions - total"] / \
-                 final_report_df["Number of positions - total"]
 
-final_report_df["Capital used per trade"] = final_report_df["Capital used per trade"] * scaling_factor
+# scaling_factor = constants.capital_per_trade / final_report_df["Capital used per trade"] * final_report_df.iloc[-1]["Number of positions - total"] / \
+#                  final_report_df["Number of positions - total"]
+
+# A pd.Series which represents the original, unscaled column in the FinalReport which contains the engaged capital from the backtests.
+original_capital_per_trade = final_report_df["Capital used per trade"]
+
+# Fixed product which basically represents the total capital, calculated from the desired capital per trade (given in constants.py) and the number of
+# positions in the last row of FinalReport.
+total_capital = final_report_df["Number of positions - total"].iloc[-1] * constants.capital_per_trade
+
+# The product of every row's total # of positions and its engaged capital should equal the total capital. So the Capital used per trade for each row
+# is corrected as follows:
+final_report_df["Capital used per trade"] = total_capital / final_report_df["Number of positions - total"]
+
+# The scaling factor for the other rows would be the ratio of the newly calculated capital to the original unscaled one.
+scaling_factor = final_report_df["Capital used per trade"] / original_capital_per_trade
+
 final_report_df["Net profit - total"] = final_report_df["Net profit - total"] * scaling_factor
 final_report_df["Gross profit - total"] = final_report_df["Gross profit - total"] * scaling_factor
 final_report_df["Gross loss - total"] = final_report_df["Gross loss - total"] * scaling_factor

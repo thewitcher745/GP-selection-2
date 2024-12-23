@@ -21,18 +21,21 @@ else:
     total_pair_list = all_pairs
 
 earliest_yearmonth = positions_df["Entry time"].min().strftime("%Y-%m")
-latest_yearmonth = positions_df["Entry time"].max().strftime("%Y-%m")
+latest_yearmonth = positions_df["Exit time"].max().strftime("%Y-%m")
 
 monthly_report_list = []
+
+# Same scaling calculations from FinalReport
+total_capital = final_report_df["Number of positions - total"].iloc[-1] * constants.capital_per_trade
+original_capital_per_trade = positions_df["Capital used"].iloc[0]
+
 for pair_count in range(1, len(total_pair_list) + 1):
     print(f"MonthlyReport.xlsx: Pair count {pair_count}")
     current_pair_list = total_pair_list[:pair_count]
     positions_for_current_pairs = positions_df[
         (positions_df["Pair name"].isin(current_pair_list)) & (positions_df["Status"] != "ACTIVE") & (positions_df["Status"] != "ENTERED")]
 
-    # Same scaling factor from FinalReport, explained in reports/final_report.py
-    scaling_factor = constants.capital_per_trade / final_report_df["Capital used per trade"] * final_report_df.iloc[-1][
-        "Number of positions - total"] / final_report_df["Number of positions - total"]
+    scaling_factor = final_report_df[final_report_df["Pair count"] == pair_count]["Capital used per trade"].iloc[0] / original_capital_per_trade
 
     # Iterate over every month between earliest and latest, calculating the profit for it
     monthly_profit_dict = {
