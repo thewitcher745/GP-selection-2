@@ -30,6 +30,9 @@ monthly_report_df.to_excel("report_outputs/MonthlyReport.xlsx")
 
 print("MonthlyReport.xlsx created.")
 
+# Drop the "Pair name" column from monthly_report_df, since it already exists in FinalReport.xlsx
+monthly_report_df = monthly_report_df.drop(columns=["Pair count"])
+
 # Combine the dataframes horizontally
 combined_report_df = pd.concat([final_report_df, monthly_report_df], axis=1)
 
