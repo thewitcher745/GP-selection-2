@@ -10,8 +10,8 @@ import constants
 positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 
-base_report_df = pd.read_excel("./BaseReport.xlsx")
-final_report_df = pd.read_excel("./FinalReport.xlsx")
+base_report_df = pd.read_excel("report_outputs/BaseReport.xlsx")
+final_report_df = pd.read_excel("report_outputs/FinalReport.xlsx")
 
 all_pairs = [pair for pair in base_report_df["Pair name"].tolist() if pair not in constants.excluded_pairs]
 
