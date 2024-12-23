@@ -41,6 +41,7 @@ def calculate_average_loss_per_position(df):
 
 
 for pair_count in range(1, len(total_pair_list) + 1):
+    print(f"FinalReport.xlsx: Pair count {pair_count}")
     current_pair_list = total_pair_list[:pair_count]
     positions_for_current_pairs = positions_df[
         (positions_df["Pair name"].isin(current_pair_list)) & (positions_df["Status"] != "ACTIVE") & (positions_df["Status"] != "ENTERED")]
