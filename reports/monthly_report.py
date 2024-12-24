@@ -5,23 +5,23 @@
 import pandas as pd
 
 from reports.base_report_utils import calc_sum_net_profit
-
-excluded_pairs = ["REEFUSDT"]
+import constants
 
 positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 
 base_report_df = pd.read_excel("./BaseReport.xlsx")
+final_report_df = pd.read_excel("./FinalReport.xlsx")
 
-all_pairs = [pair for pair in base_report_df["Pair name"].tolist() if pair not in excluded_pairs]
-if len(all_pairs) > 30:
-    total_pair_list = all_pairs[:31]
+all_pairs = [pair for pair in base_report_df["Pair name"].tolist() if pair not in constants.excluded_pairs]
+
+if len(all_pairs) > constants.max_final_report_pairs:
+    total_pair_list = all_pairs[:constants.max_final_report_pairs + 1]
 else:
     total_pair_list = all_pairs
 
 earliest_yearmonth = positions_df["Entry time"].min().strftime("%Y-%m")
 latest_yearmonth = positions_df["Entry time"].max().strftime("%Y-%m")
-
 
 monthly_report_list = []
 for pair_count in range(1, len(total_pair_list) + 1):
@@ -29,9 +29,9 @@ for pair_count in range(1, len(total_pair_list) + 1):
     positions_for_current_pairs = positions_df[
         (positions_df["Pair name"].isin(current_pair_list)) & (positions_df["Status"] != "ACTIVE") & (positions_df["Status"] != "ENTERED")]
 
-    # This is temporary - modifying the money engaged in each trade to be the same for all scenarios
-    capital_per_trade = 150
-    scaling_factor = capital_per_trade / float(positions_for_current_pairs["Capital used"].iloc[0])
+    # Same scaling factor from FinalReport, explained in reports/final_report.py
+    scaling_factor = constants.capital_per_trade / final_report_df["Capital used per trade"] * final_report_df.iloc[-1][
+        "Number of positions - total"] / final_report_df["Number of positions - total"]
 
     # Iterate over every month between earliest and latest, calculating the profit for it
     monthly_profit_dict = {

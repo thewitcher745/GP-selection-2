@@ -1,17 +1,16 @@
 import pandas as pd
 
+import constants
 from reports.base_report_utils import *
-
-excluded_pairs = ["REEFUSDT"]
 
 positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
 
 base_report_df = pd.read_excel("./BaseReport.xlsx")
 
-all_pairs = [pair for pair in base_report_df["Pair name"].tolist() if pair not in excluded_pairs]
-if len(all_pairs) > 30:
-    total_pair_list = all_pairs[:31]
+all_pairs = [pair for pair in base_report_df["Pair name"].tolist() if pair not in constants.excluded_pairs]
+if len(all_pairs) > constants.max_final_report_pairs:
+    total_pair_list = all_pairs[:constants.max_final_report_pairs + 1]
 else:
     total_pair_list = all_pairs
 
@@ -106,8 +105,7 @@ final_report_df = pd.DataFrame.from_dict(final_report_list)
 
 # This scaling factor works by forcing a set amount of engaged capital for every signal of the LAST row of the final report. Then, a scaling factor
 # is calculated for all the other rows and all the affected numbers are multiplied by that.
-capital_per_position = 100
-scaling_factor = capital_per_position / final_report_df["Capital used per trade"] * final_report_df.iloc[-1]["Number of positions - total"] / \
+scaling_factor = constants.capital_per_trade / final_report_df["Capital used per trade"] * final_report_df.iloc[-1]["Number of positions - total"] / \
                  final_report_df["Number of positions - total"]
 
 final_report_df["Capital used per trade"] = final_report_df["Capital used per trade"] * scaling_factor
