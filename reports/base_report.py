@@ -2,7 +2,7 @@ import pandas as pd
 
 from reports.base_report_utils import *
 
-mode = "LIMITED_PAIRS"
+mode = "ALL_PAIRS"
 
 positions_df: pd.DataFrame = pd.read_excel("./all_positions.xlsx")
 positions_df.sort_values(["Entry time"], inplace=True)
@@ -15,6 +15,10 @@ elif mode == "ALL_PAIRS":
 
 # The list which contains items that have data related to each pair. Each item is a dict and the list finally converts into a python dataframe.
 base_report_list: list = []
+
+min_date = positions_df["Entry time"].min()
+max_date = positions_df["Exit time"].max()
+total_month_list = pd.date_range(start=min_date, end=max_date, freq='MS')
 
 for pair_name in pair_list:
     # The positions that have pair_name as their first column, and have been actually entered
@@ -36,6 +40,9 @@ for pair_name in pair_list:
 
     total_largest_profit_per_position: float = positions_from_pair[positions_from_pair["Net profit"] > 0]["Net profit"].max()
     total_average_profit_per_position: float = total_net_profit / len(positions_from_pair)
+
+    # Missing months
+    missing_months = calc_missing_months(positions_from_pair, total_month_list)
 
     # Performance means what percentage of months have had positive net profits.
     total_performance: float = calc_performance(positions_from_pair)
@@ -60,6 +67,8 @@ for pair_name in pair_list:
         "Gross loss - total": total_gross_loss,
         "Largest profit in a trade - total": total_largest_profit_per_position,
         "Average profit per trade - total": total_average_profit_per_position,
+        "Total months": len(total_month_list),
+        "Missing months": missing_months,
         "Max drawdown - total": total_drawdown,
         "Average consecutive wins": avg_consecutive_wins,
         "Max consecutive wins": max_consecutive_wins,
@@ -73,6 +82,9 @@ base_report_df = pd.DataFrame.from_dict(base_report_list)
 
 # Add the score column to the base_report dataframe
 base_report_df["Score"] = calculate_score(base_report_df, weights)["Score"]
+
+# Adjust the scores for missing months
+base_report_df = adjust_score_for_missing_months(base_report_df)
 
 # Sort the columns by Score
 base_report_df.sort_values(["Score"], ascending=False, inplace=True)

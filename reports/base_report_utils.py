@@ -159,3 +159,46 @@ def calculate_score(df: pd.DataFrame, weights: dict) -> pd.DataFrame:
     df["Score"] = df[[f"{column} - normalized" for column in weights.keys()]].sum(axis=1)
 
     return df
+
+
+def calc_missing_months(positions, month_list: pd.DatetimeIndex):
+    """
+        Calculate the number of months with no positions based on the "Exit time" column.
+
+        This function determines the number of months within the range of the dataset (from the earliest "Entry time" to the latest "Exit time")
+        that do not have any positions with an "Exit time" falling within that month.
+
+        Args:
+            positions (pd.DataFrame): A DataFrame containing position data with "Entry time" and "Exit time" columns.
+
+        Returns:
+            int: The number of months with no positions.
+    """
+
+    missing_months = 0
+
+    for month in month_list:
+        month_end = month + pd.offsets.MonthEnd(1)
+        if not ((positions["Exit time"] >= month) & (positions["Exit time"] <= month_end)).any():
+            missing_months += 1
+
+    return missing_months
+
+
+def adjust_score_for_missing_months(base_report_df) -> pd.DataFrame:
+    """
+    Adjust the score of each pair based on the number of missing months.
+
+    This function multiplies the score of each pair by 0.8 for each month that it has no positions.
+
+    Args:
+        base_report_df (pd.DataFrame): The base report DataFrame containing the "Missing months" and "Score" columns.
+
+    Returns:
+        pd.DataFrame: The DataFrame with adjusted scores.
+    """
+    missing_months_column = base_report_df["Missing months"]
+
+    base_report_df["Score"] *= 0.75 ** missing_months_column
+
+    return base_report_df
