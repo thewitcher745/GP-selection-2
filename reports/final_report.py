@@ -17,6 +17,7 @@ else:
 # The list containing rows of the final report, which show data on scenarios for choosing the first n pairs of base report as our selected pairs.
 final_report_list = []
 
+total_month_list = calc_total_months(positions_df)
 
 def calculate_average_concurrent_positions(df):
     min_time = min(df["Entry time"].min(), df["Exit time"].min())
@@ -69,6 +70,9 @@ for pair_count in range(1, len(total_pair_list) + 1):
     # Drawdown represents the maximum drawdown of the equity curve formed by the positions
     total_drawdown: float = calc_max_drawdown(positions_for_current_pairs)
 
+    # Missing months that the combination of pairs had no positions in
+    missing_months = calc_missing_months(positions_for_current_pairs, total_month_list)
+
     # Average concurrent open positions
     average_concurrent_positions = calculate_average_concurrent_positions(positions_for_current_pairs)
 
@@ -92,6 +96,8 @@ for pair_count in range(1, len(total_pair_list) + 1):
         "Average profit per trade - total": total_average_profit_per_position,
         "Max drawdown - total": total_drawdown,
         "Average loss per position - total": average_loss_per_position,
+        "Total months": len(total_month_list),
+        "Missing months": missing_months,
         "Average # of concurrent trades": average_concurrent_positions,
         "Average consecutive wins": avg_consecutive_wins,
         "Max consecutive wins": max_consecutive_wins,
