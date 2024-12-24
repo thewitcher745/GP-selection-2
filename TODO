@@ -1,0 +1,1 @@
+- Move all file-specific variables to a constants.py file, or a .env file
