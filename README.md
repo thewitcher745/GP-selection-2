@@ -8,8 +8,9 @@ the `BaseReport` is implemented, which ranks different assets based on various m
 - **BaseReport**: Ranks financial assets based on multiple metrics such as performance, win rate, net profit, gross profit, gross loss, largest profit
   in a trade, average profit per trade, max drawdown, and consecutive wins/losses.
 - **FinalReport**: Provides case study analysis of combining the N top pairs from BaseReport, along with metrics calculated from their combinations
-- **MonthylReport**: Provides month-by-month analysis of the same pair combinations from FinalReport, reporting profits for each N pairs combined per
+- **MonthlyReport**: Provides month-by-month analysis of the same pair combinations from FinalReport, reporting profits for each N pairs combined per
   month.
+- **CombinedReport**: Combines the outputs from Final and Monthly reports into one.
 
 ## Installation
 

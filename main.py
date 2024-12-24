@@ -20,3 +20,13 @@ monthly_report_df: pd.DataFrame = monthly_report.monthly_report_df
 monthly_report_df.to_excel("MonthlyReport.xlsx")
 
 print("MonthlyReport.xlsx created.")
+
+# Combine the dataframes horizontally
+combined_report_df = pd.concat([final_report_df, monthly_report_df], axis=1)
+
+# Save the combined dataframe to a new Excel file
+combined_report_df.to_excel("CombinedReport.xlsx", index=False)
+
+print("CombinedReport.xlsx created.")
+
+
