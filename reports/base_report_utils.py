@@ -161,6 +161,14 @@ def calculate_score(df: pd.DataFrame, weights: dict) -> pd.DataFrame:
     return df
 
 
+def calc_total_months(positions):
+    min_date = positions["Entry time"].min()
+    max_date = positions["Exit time"].max()
+    total_month_list = pd.date_range(start=min_date, end=max_date, freq='MS')
+
+    return total_month_list
+
+
 def calc_missing_months(positions, month_list: pd.DatetimeIndex):
     """
         Calculate the number of months with no positions based on the "Exit time" column.
@@ -170,6 +178,7 @@ def calc_missing_months(positions, month_list: pd.DatetimeIndex):
 
         Args:
             positions (pd.DataFrame): A DataFrame containing position data with "Entry time" and "Exit time" columns.
+            month_list (pd.DatetimeIndex): A list of Datetimes for the list of months that positions spanned across.
 
         Returns:
             int: The number of months with no positions.

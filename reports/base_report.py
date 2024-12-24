@@ -16,9 +16,7 @@ elif mode == "ALL_PAIRS":
 # The list which contains items that have data related to each pair. Each item is a dict and the list finally converts into a python dataframe.
 base_report_list: list = []
 
-min_date = positions_df["Entry time"].min()
-max_date = positions_df["Exit time"].max()
-total_month_list = pd.date_range(start=min_date, end=max_date, freq='MS')
+total_month_list = calc_total_months(positions_df)
 
 for pair_name in pair_list:
     # The positions that have pair_name as their first column, and have been actually entered
