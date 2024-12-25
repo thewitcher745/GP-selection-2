@@ -1,7 +1,8 @@
-# Financial Asset Reporting Project
+# Financial Asset Reporting (Good Pair Selection)
 
-This project generates various reports based on a list of positions formed on different financial assets over a certain time range. Currently, only
-the `BaseReport` is implemented, which ranks different assets based on various metrics. Future iterations will include additional reports.
+This is the updated version of the initial GP-Selection.
+This project generates various reports based on a list of positions formed on different financial assets over a certain time range. The reports
+contain information on the various performance metrics of said coins, and how they performed when the N top pairs are combined.
 
 ## Features
 
@@ -16,8 +17,8 @@ the `BaseReport` is implemented, which ranks different assets based on various m
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/financial-asset-reporting.git
-    cd financial-asset-reporting
+    git clone https://github.com/thewitcher745/GP-selection-2.git
+    cd GP-selection-2
     ```
 
 2. Install the required dependencies:
@@ -43,7 +44,7 @@ the `BaseReport` is implemented, which ranks different assets based on various m
 - `reports/base_report.py`: Contains the logic for generating the `BaseReport`.
 - `reports/base_report_utils.py`: Utility functions used in the `BaseReport`.
 - `reports/final_report.py`: Contains the logic for generating the `FinalReport`.
-- `reports/monthly_report.py`: Contains the logic for generating the `MonthlyReport`. 
+- `reports/monthly_report.py`: Contains the logic for generating the `MonthlyReport`.
 - `all_positions.xlsx`: Input file containing the positions' data.
 
 ## Future Work
