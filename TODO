@@ -1,1 +1,3 @@
-- Move all file-specific variables to a constants.py file, or a .env file
+- Add average loss per losing trade
+
++ Move all file-specific variables to a constants.py file, or a .env file

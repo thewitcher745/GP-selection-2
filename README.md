@@ -28,7 +28,7 @@ contain information on the various performance metrics of said coins, and how th
 
 ## Usage
 
-1. Place your positions data in an Excel file named `all_positions.xlsx` in the root directory.
+1. Place your positions data in an Excel file named `all_positions.xlsx` in the root directory. The filename can also be set using --pl runtime arg.
 
 2. Run the main script to generate all the reports:
     ```sh
@@ -41,12 +41,7 @@ contain information on the various performance metrics of said coins, and how th
 
 - `main.py`: Entry point for generating reports.
 - `constants.py`: File containing constants used in the reports, such as capital per trade, excluded pairs, and many more.
-- `reports/base_report.py`: Contains the logic for generating the `BaseReport`.
-- `reports/base_report_utils.py`: Utility functions used in the `BaseReport`.
-- `reports/final_report.py`: Contains the logic for generating the `FinalReport`.
-- `reports/monthly_report.py`: Contains the logic for generating the `MonthlyReport`.
+- `reports/base_report_utils.py`: Utility functions.
+- `reports/gp_report.py`: Contains the logic for generating all reports.
 - `all_positions.xlsx`: Input file containing the positions' data.
 
-## Future Work
-
-- ??
