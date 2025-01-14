@@ -1,4 +1,6 @@
+import numpy as np
 import pandas as pd
+from line_profiler import profile
 
 # Define the weights for each column
 weights = {
@@ -25,59 +27,67 @@ def calc_performance(positions: pd.DataFrame) -> float:
     positions = positions.copy()
 
     # Extract month and year from 'Exit time'
-    positions['YearMonth'] = positions['Exit time'].dt.to_period('M')
+    positions['Exit time'] = positions['Exit time'].dt.tz_localize(None)
+    year_month = positions['Exit time'].dt.to_period('M').astype(str).to_numpy()
 
-    # Group by 'YearMonth'
-    grouped = positions.groupby('YearMonth')
+    # Convert 'Net profit' to a NumPy array
+    net_profit = positions['Net profit'].to_numpy()
 
-    # Calculate the sum of 'Net profit' for each group
-    monthly_net_profit = grouped['Net profit'].sum()
+    # Calculate the sum of 'Net profit' for each 'YearMonth'
+    unique_year_months, indices = np.unique(year_month, return_inverse=True)
+    monthly_net_profit = np.zeros(len(unique_year_months))
+    np.add.at(monthly_net_profit, indices, net_profit)
 
     # Count the number of months with positive and negative net profits
-    positive_months = (monthly_net_profit > 0).sum()
-    negative_months = (monthly_net_profit < 0).sum()
+    positive_months = np.sum(monthly_net_profit > 0)
+    negative_months = np.sum(monthly_net_profit < 0)
 
     return positive_months / (positive_months + negative_months) * 100
 
+    # # Group by 'YearMonth'
+    # grouped = positions.groupby('YearMonth')
+    #
+    # # Calculate the sum of 'Net profit' for each group
+    # monthly_net_profit = grouped['Net profit'].sum()
+    #
+    # # Count the number of months with positive and negative net profits
+    # positive_months = (monthly_net_profit > 0).sum()
+    # negative_months = (monthly_net_profit < 0).sum()
+    #
+    # return positive_months / (positive_months + negative_months) * 100
+
 
 def calc_winrate(positions: pd.DataFrame) -> float:
-    return len(positions[positions["Net profit"] > 0]) / len(positions) * 100
+    pair_net_profits = positions['Net profit'].to_numpy()
+    return len(pair_net_profits[np.where(pair_net_profits > 0)]) / len(positions) * 100
 
 
-def generate_equity_curve(positions: pd.DataFrame, timeframe: str) -> pd.DataFrame:
+def generate_equity_curve(positions: pd.DataFrame, timeframe: str) -> np.ndarray:
     positions = positions.copy()
 
     # Convert 'Exit time' to datetime
-    positions['Exit time'] = pd.to_datetime(positions['Exit time'])
+    exit_times = pd.to_datetime(positions['Exit time']).to_numpy()
+    net_profits = positions['Net profit'].to_numpy()
 
     # Create a time range from the first to the last position, separated by the given time difference
     time_index = pd.date_range(start=positions['Exit time'].min(),
                                end=positions['Exit time'].max(),
                                freq=timeframe)
 
+    time_index = np.array(time_index)
+
     # Initialize the equity DataFrame
-    equity_curve = pd.DataFrame(index=time_index, columns=['value'], dtype='float64')
-    equity_curve['value'] = 0.0
+    equity_curve = np.zeros(len(time_index))
 
     # Iterate through the positions and update the equity value at each exit time
-    for _, row in positions.iterrows():
-        exit_time = row['Exit time']
-        net_profit = float(row['Net profit'])
-
-        # Another safety net for incorrect positions
-        if net_profit is None:
-            continue
+    for position_idx, exit_time in enumerate(exit_times):
+        net_profit = net_profits[position_idx]
 
         # Update the equity value
-        try:
-            equity_curve.loc[exit_time, 'value'] += net_profit
-
-        # Catching any errors due to wrong positions being passed
-        except KeyError:
-            continue
+        equity_curve += np.where(time_index == exit_time, net_profit, 0)
 
     # Calculate the cumulative sum to get the equity curve
-    equity_curve['value'] = equity_curve['value'].cumsum()
+    equity_curve = np.cumsum(equity_curve)
 
     return equity_curve
 
@@ -86,45 +96,72 @@ def calc_max_drawdown(positions: pd.DataFrame, timeframe: str = "15min") -> floa
     equity_curve = generate_equity_curve(positions, timeframe=timeframe)
 
     # Calculate the running maximum
-    equity_curve['running_max'] = equity_curve['value'].cummax()
+    running_max = np.maximum.accumulate(equity_curve)
 
     # Calculate the drawdown
-    equity_curve['drawdown'] = abs(equity_curve['running_max'] - equity_curve['value'])
+    drawdown = abs(running_max - equity_curve)
 
     # Calculate the max drawdown
-    max_drawdown = equity_curve['drawdown'].max()
+    max_drawdown = max(drawdown)
 
     return max_drawdown
 
 
 def calc_consecutive_wins(positions: pd.DataFrame) -> (float, int):
     # Filter only the profitable positions
-    positive_positions = positions['Net profit'] > 0
+    positive_positions = positions['Net profit'].to_numpy() > 0
 
-    # Calculate the lengths of consecutive profitable positions
-    consecutive_wins = (positive_positions != positive_positions.shift()).cumsum()
-    streak_lengths = positive_positions.groupby(consecutive_wins).cumsum()
+    # Find the indices where the value changes
+    changes = np.diff(positive_positions.astype(int))
+
+    # Identify the start and end of each streak of True values
+    streak_starts = np.where(changes == 1)[0] + 1
+    streak_ends = np.where(changes == -1)[0] + 1
+
+    # Handle the case where the array starts or ends with a streak of True values
+    if positive_positions[0]:
+        streak_starts = np.insert(streak_starts, 0, 0)
+    if positive_positions[-1]:
+        streak_ends = np.append(streak_ends, len(positive_positions))
+
+    # Calculate the lengths of the streaks
+    streak_lengths = streak_ends - streak_starts
 
     # Calculate the average and maximum streak lengths
-    avg_consecutive_wins = streak_lengths[positive_positions].mean()
-    max_consecutive_wins = streak_lengths[positive_positions].max()
+    avg_streak = np.mean(streak_lengths) if len(streak_lengths) > 0 else 0
+    max_streak = np.max(streak_lengths) if len(streak_lengths) > 0 else 0
 
-    return avg_consecutive_wins, max_consecutive_wins
+    return avg_streak, max_streak
 
 
 def calc_consecutive_losses(positions: pd.DataFrame) -> (float, int):
-    # Filter only the profitable positions
-    negative_positions = positions['Net profit'] < 0
+    # Filter only the negative positions
+    negative_positions = positions['Net profit'].to_numpy() < 0
 
-    # Calculate the lengths of consecutive profitable positions
-    consecutive_losses = (negative_positions != negative_positions.shift()).cumsum()
-    streak_lengths = negative_positions.groupby(consecutive_losses).cumsum()
+    if len(negative_positions) == 0:
+        return 0, 0
+
+    # Find the indices where the value changes
+    changes = np.diff(negative_positions.astype(int))
+
+    # Identify the start and end of each streak of True values
+    streak_starts = np.where(changes == 1)[0] + 1
+    streak_ends = np.where(changes == -1)[0] + 1
+
+    # Handle the case where the array starts or ends with a streak of True values
+    if negative_positions[0]:
+        streak_starts = np.insert(streak_starts, 0, 0)
+    if negative_positions[-1]:
+        streak_ends = np.append(streak_ends, len(negative_positions))
+
+    # Calculate the lengths of the streaks
+    streak_lengths = streak_ends - streak_starts
 
     # Calculate the average and maximum streak lengths
-    avg_consecutive_losses = streak_lengths[negative_positions].mean()
-    max_consecutive_losses = streak_lengths[negative_positions].max()
+    avg_streak = np.mean(streak_lengths) if len(streak_lengths) > 0 else 0
+    max_streak = np.max(streak_lengths) if len(streak_lengths) > 0 else 0
 
-    return avg_consecutive_losses, max_consecutive_losses
+    return avg_streak, max_streak
 
 
 def calculate_score(df: pd.DataFrame, weights: dict) -> pd.DataFrame:
@@ -162,8 +199,8 @@ def calculate_score(df: pd.DataFrame, weights: dict) -> pd.DataFrame:
 
 
 def calc_total_months(positions):
-    min_date = positions["Entry time"].min().replace(day=1)
-    max_date = (positions["Exit time"].max() + pd.DateOffset(months=1)).replace(day=1)
+    min_date = positions["Entry time"].min().replace(day=1, hour=0, minute=0, second=0)
+    max_date = positions["Exit time"].max().replace(day=1, hour=0, minute=0, second=0)
 
     total_month_list = pd.date_range(start=min_date, end=max_date, freq="MS")
     return total_month_list

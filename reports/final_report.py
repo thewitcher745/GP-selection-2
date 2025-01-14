@@ -1,4 +1,5 @@
 import pandas as pd
+from line_profiler import profile
 
 import constants
 from reports.base_report_utils import *
@@ -21,15 +22,18 @@ total_month_list = calc_total_months(positions_df)
 
 
 def calculate_average_concurrent_positions(df):
-    min_time = min(df["Entry time"].min(), df["Exit time"].min())
-    max_time = max(df["Entry time"].max(), df["Exit time"].max())
-    all_times = pd.date_range(start=min_time, end=max_time, freq='5min')
+    entry_times = df['Entry time'].to_numpy()
+    exit_times = df['Exit time'].to_numpy()
+
+    min_time = min(min(entry_times), min(exit_times))
+    max_time = max(max(entry_times), max(exit_times))
+    all_times = pd.date_range(start=min_time, end=max_time, freq='5min').to_numpy()
 
     concurrent_positions = []
 
     for time in all_times:
         # Count positions that are active at the current time
-        active_positions = df[(df["Entry time"] <= time) & (df["Exit time"] > time)]
+        active_positions = df[(entry_times <= time) & (exit_times > time)]
         concurrent_positions.append(len(active_positions))
 
     # Calculate the average number of concurrent positions
