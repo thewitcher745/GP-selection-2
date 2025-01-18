@@ -1,4 +1,6 @@
 import argparse
+import os
+
 from dotenv import dotenv_values
 
 # Set up argument parser
@@ -17,3 +19,6 @@ capital_per_trade = 100
 
 # Set the positions file name from the argument
 positions_file_name = f'./{args.pl}' if args.pl else "./all_positions.xlsx"
+
+output_dir = f'report_outputs/{args.pl.replace('xlsx', '')}' if args.pl else "report_outputs/latest"
+os.mkdir(output_dir)

@@ -26,10 +26,10 @@ class Report:
         self.monthly_report_df: pd.DataFrame = self.create_monthly_report()
         self.combined_report_df: pd.DataFrame = self.create_combined_report()
 
-        self.base_report_df.to_excel("report_outputs/BaseReport.xlsx")
-        self.final_report_df.to_excel("report_outputs/FinalReport.xlsx")
-        self.monthly_report_df.to_excel("report_outputs/MonthlyReport.xlsx")
-        self.combined_report_df.to_excel("report_outputs/CombinedReport.xlsx", index=False)
+        self.base_report_df.to_excel(f"{constants.output_dir}/BaseReport.xlsx")
+        self.final_report_df.to_excel(f"{constants.output_dir}/FinalReport.xlsx")
+        self.monthly_report_df.to_excel(f"{constants.output_dir}/MonthlyReport.xlsx")
+        self.combined_report_df.to_excel(f"{constants.output_dir}/CombinedReport.xlsx", index=False)
 
     def create_base_report(self) -> pd.DataFrame:
         # The list which contains items that have data related to each pair. Each item is a dict and the list finally converts into a python dataframe.
@@ -168,7 +168,6 @@ class Report:
                 continue
 
             pair_net_profits = positions_for_current_pairs["Net profit"].to_numpy()
-
 
             # The summation of the net profit for the list of trades
             total_net_profit: float = calc_sum_net_profit(positions_for_current_pairs)
