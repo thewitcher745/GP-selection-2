@@ -8,6 +8,10 @@ class Report:
     def __init__(self, all_positions_file='./all_positions.xlsx', mode='ALL_PAIRS'):
         print('Reading from', all_positions_file)
         self.positions_df: pd.DataFrame = pd.read_excel(all_positions_file)
+
+        if constants.position_type:
+            self.positions_df = self.positions_df['Type'] == constants.position_type.lower()
+
         self.positions_df.sort_values(["Entry time"], inplace=True)
 
         # Filters
