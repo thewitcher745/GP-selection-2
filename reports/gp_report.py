@@ -10,7 +10,7 @@ class Report:
         self.positions_df: pd.DataFrame = pd.read_excel(all_positions_file)
 
         if constants.position_type:
-            self.positions_df = self.positions_df['Type'] == constants.position_type.lower()
+            self.positions_df = self.positions_df[self.positions_df['Type'] == constants.position_type.lower()].reset_index()
 
         self.positions_df.sort_values(["Entry time"], inplace=True)
 

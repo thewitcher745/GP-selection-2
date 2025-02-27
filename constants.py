@@ -29,6 +29,7 @@ if not args.output_dir:
 
 # If an output_dir is given through runtime arg, use it
 else:
-    output_dir = args.output_dir
+    output_dir = f'report_outputs/{args.output_dir}'
 
-os.mkdir(output_dir)
+if not os.path.exists(output_dir):
+    os.mkdir(output_dir)
