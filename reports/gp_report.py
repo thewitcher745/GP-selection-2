@@ -155,13 +155,13 @@ class Report:
             return df[df["Net profit"] < 0]["Net profit"].mean()
 
         if len(self.pair_list) > constants.max_final_report_pairs:
-            total_pair_list = self.pair_list[:constants.max_final_report_pairs]
+            sorted_pair_list = self.base_report_df["Pair name"][:constants.max_final_report_pairs].tolist()
         else:
-            total_pair_list = self.pair_list
+            sorted_pair_list = self.base_report_df["Pair name"].tolist()
 
-        for pair_count in range(1, len(total_pair_list) + 1):
+        for pair_count in range(1, len(sorted_pair_list) + 1):
             print(f"FinalReport.xlsx: Pair count {pair_count}")
-            current_pair_list = total_pair_list[:pair_count]
+            current_pair_list = sorted_pair_list[:pair_count]
             positions_for_current_pairs = self.positions_df[
                 (np.isin(self.pair_names, current_pair_list)) & (self.statuses != "ACTIVE") & (self.statuses != "ENTERED")]
 
