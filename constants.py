@@ -25,7 +25,7 @@ position_type = args.position_type if args.position_type else None
 
 # If no output dir is given, set either the pairs file name or "latest" as the output dir.
 if not args.output_dir:
-    output_dir = f'report_outputs/{args.pl.replace('xlsx', '')}' if args.pl else "report_outputs/latest"
+    output_dir = f'report_outputs/{args.pl.replace('.xlsx', '')}' if args.pl else "report_outputs/latest"
 
 # If an output_dir is given through runtime arg, use it
 else:
