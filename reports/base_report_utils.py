@@ -30,31 +30,33 @@ def calc_performance(positions: pd.DataFrame) -> float:
     positions['Exit time'] = positions['Exit time'].dt.tz_localize(None)
     year_month = positions['Exit time'].dt.to_period('M').astype(str).to_numpy()
 
-    # Convert 'Net profit' to a NumPy array
-    net_profit = positions['Net profit'].to_numpy()
-
-    # Calculate the sum of 'Net profit' for each 'YearMonth'
-    unique_year_months, indices = np.unique(year_month, return_inverse=True)
-    monthly_net_profit = np.zeros(len(unique_year_months))
-    np.add.at(monthly_net_profit, indices, net_profit)
-
-    # Count the number of months with positive and negative net profits
-    positive_months = np.sum(monthly_net_profit > 0)
-    negative_months = np.sum(monthly_net_profit < 0)
-
-    return positive_months / (positive_months + negative_months) * 100
-
-    # # Group by 'YearMonth'
-    # grouped = positions.groupby('YearMonth')
+    positions['YearMonth'] = year_month
     #
-    # # Calculate the sum of 'Net profit' for each group
-    # monthly_net_profit = grouped['Net profit'].sum()
+    # # Convert 'Net profit' to a NumPy array
+    # net_profit = positions['Net profit'].to_numpy()
+    #
+    # # Calculate the sum of 'Net profit' for each 'YearMonth'
+    # unique_year_months, indices = np.unique(year_month, return_inverse=True)
+    # monthly_net_profit = np.zeros(len(unique_year_months))
+    # np.add.at(monthly_net_profit, indices, net_profit)
     #
     # # Count the number of months with positive and negative net profits
-    # positive_months = (monthly_net_profit > 0).sum()
-    # negative_months = (monthly_net_profit < 0).sum()
+    # positive_months = np.sum(monthly_net_profit > 0)
+    # negative_months = np.sum(monthly_net_profit < 0)
     #
     # return positive_months / (positive_months + negative_months) * 100
+
+    # # Group by 'YearMonth'
+    grouped = positions.groupby('YearMonth')
+
+    # Calculate the sum of 'Net profit' for each group
+    monthly_net_profit = grouped['Net profit'].sum()
+
+    # Count the number of months with positive and negative net profits
+    positive_months = (monthly_net_profit > 0).sum()
+    negative_months = (monthly_net_profit < 0).sum()
+
+    return positive_months / (positive_months + negative_months) * 100
 
 
 def calc_winrate(positions: pd.DataFrame) -> float:
